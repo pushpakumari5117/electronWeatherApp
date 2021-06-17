@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electron Weather App</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+        body{
+            background-color: #151515;
+            font-family: 'Montserrat', sans-serif;
+            color:#CCF2F4;
+        }
+        #hero{
+            position: absolute;
+            z-index: -1;
+            top: 5%;
+            right: 5%;
+        }
+        img{
+            height: 500px;
+            width: 500px;
+        }
+        header{
+            height: 400px;
+        }
+        header h1{
+            font-size: 80px;
+            line-height: 80px;
+            padding-left: 10%;
+        }
+        main{
+            padding-bottom: 120px;
+            text-align: center;
+        }
+        main p{
+            font-size: 40px;
+        }
+        form{
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        form input[type="submit"]{
+            background-color: #F50057;
+            font-size: 20px;
+            padding: 5px 20px;
+            border: 1px solid aquamarine;
+            border-radius: 5px;
+        }
+        form input[type="text"]{
+            background-color: rgb(255, 255, 255);
+            font-size: 20px;
+            padding: 5px 20px;
+            border: 1px solid aquamarine;
+            border-radius: 5px;
+            width: 60vw;
+            margin: 10px;
+        }
+        form input[type="text"]:focus{
+            outline: none;
+        }
+        #conditions{
+            margin-top: 50px;
+        }
+        #conditions h4, 
+        #conditions h2{
+            margin: 0px;
+        }
+        #conditions h4{
+            margin-top: 30px;
+        }
+        #conditions h2{
+            margin-bottom: 30px;
+        }
+        #conditions img{
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <img id="hero" src="./images/img1.svg" alt="" />
+    <header>
+        <h1>Electron <br> Weather App</h1>
+    </header>
+    <main>
+        <p> Search City </p>
+        <form method="post" id="weatherForm">
+            <input type="text" id="city" placeholder="Search City" />
+            <input id="postSubmit" type="submit" value="Submit" />
+        </form>
+    </main>
+</body>
+<script>
+    const cityform=document.querySelector("#weatherForm");
+    const getWeatherConditions=async(city)=>{
+        await fetch(`http://api.weatherstack.com/current?access_key=835d6611dbecd222616238d52b8cfb5d&query=${city}`)
+        .then(res=>res.json())
+        .then(data=>{
+            console.log(data);
+            let div=document.createElement("div");
+            div.setAttribute("id","conditions");
+            let img=document.createElement("img");
+            img.setAttribute("src",data.current.weather_icons[0]);
+            img.setAttribute("loading","lazy");
+            let weatherDesc=document.createElement("h4");
+            let weatherDescNode=document.createTextNode(data.current.weather_descriptions[0]);
+            weatherDesc.appendChild(weatherDescNode);
+            let city=document.createElement("h2");
+            let cityNode=document.createTextNode(data.request.query);
+            city.appendChild(cityNode);
+            let temp=document.createElement("div");
+            let tempNode=document.createTextNode(data.current.temperature+" °C");
+            temp.appendChild(tempNode);
+            div.appendChild(img);
+            div.appendChild(weatherDesc);
+            div.appendChild(city);
+            div.appendChild(temp);
+            document.querySelector("main").appendChild(div);
+        }).catch(err=>console.log(err))
+    }
+    document.addEventListener("DOMContentLoaded",(e)=>{
+        cityform.addEventListener("submit",(e)=>{
+            e.preventDefault();
+            if(document.querySelector("#city").value!=""){
+                let conditionsDiv=document.querySelector("#conditions");
+                if(conditionsDiv){
+                    document.querySelector("main").removeChild(conditionsDiv);
+                }
+                getWeatherConditions(document.getElementById("city").value);
+            }
+            else{
+                console.log("You must provide a city");
+            }
+        })
+    })
+</script>
+</html>
